@@ -34,6 +34,23 @@ export class UserRepository extends Repository<User> {
     return authSignupDto;
   }
 
+  async validateUserPassword(authCredentialsDto: AuthCredentialsDto): Promise<AuthSignupDto> {
+    let authSignupDto: AuthSignupDto = {success: true, message: ''};
+    let message: string = null;
+    const {username, password} = authCredentialsDto;
+    const user = await this.findOne({ username });
+
+    if (user && await user.validatePassword(password)) {
+      authSignupDto.message = `${user.username} signed in successfully`;
+    }
+    else {
+      authSignupDto.success = false;
+      authSignupDto.message = 'invalid credentials';
+    }
+
+    return authSignupDto;
+  }
+
   private async getHash(password: string, salt: string): Promise<string> {
     return bcrypt.hash(password, salt);
   }

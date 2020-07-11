@@ -11,4 +11,9 @@ constructor(private authService: AuthService) {}
   signUp(@Body(ValidationPipe) authCredendialsDto: AuthCredentialsDto): Promise<AuthSignupDto> {
     return this.authService.signUp(authCredendialsDto);
   }
+
+  @Post('/signin')
+  signIn(@Body(ValidationPipe) authCredendialsDto: AuthCredentialsDto): Promise<AuthSignupDto> {
+    return this.authService.signIn(authCredendialsDto);
+  }
 }
