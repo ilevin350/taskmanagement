@@ -5,8 +5,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserRepository } from './user.repository';
 import { User } from './user.entity';
-import { AuthSignupDto } from './dto/auth-signup.dto';
+import { AuthSigninDto } from './dto/auth-signin.dto';
 import { AuthService } from './auth.service';
+import { AuthValidateDto } from './dto/auth-validate.dto';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -20,18 +21,22 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: JwtPayload): Promise<AuthSignupDto> {
-    let authSignupDto: AuthSignupDto = { success: true, message: '', accessToken: '' }
+  // Any controller action that is "guarded" will call this function.
+  // The result will be injected into the HTTP request by means of
+  // our @GetUser() custom decorator.
+  async validate(payload: JwtPayload): Promise<AuthValidateDto> {
+    let authValidateDto: AuthValidateDto = { success: true, message: '', accessToken: '', user: null }
     const { username } = payload;
     const user = await this.userRepository.findOne({username});
     
     if (!user) {
-      authSignupDto.success = false;
-      authSignupDto.message = 'User not found';
+      authValidateDto.success = false;
+      authValidateDto.message = 'User not found';
     } else {
-      authSignupDto.message = `Username: ${user.username}`;
+      authValidateDto.message = `${user.username} validated successfully`;
+      authValidateDto.user = user;
     }
 
-    return authSignupDto;
+    return authValidateDto;
   }
 } 
