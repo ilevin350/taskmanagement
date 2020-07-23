@@ -4,18 +4,22 @@ import { CreateTaskDto } from "./dto/create-task.dto";
 import { TaskStatus } from "./task-status.enum";
 import { GetTasksFilterDto } from "./dto/get-tasks-filter.dto";
 import { User } from "src/auth/user.entity";
+import { Logger } from "@nestjs/common";
 
 @EntityRepository(Task)
 export class TaskRepository extends Repository<Task> {
+  private logger = new Logger('TaskRepository');
+
   async getTasks(taskFilterDto: GetTasksFilterDto, user: User): Promise<Task[]> {
     const {status, search} = taskFilterDto;
     const query = this.createQueryBuilder('task');
+    let tasks: Task[];
 
     // Here we use query builder to:
     // select * from tasks where task.userId = user.id
     // Note that the symbol :userId in the 1st param is a
     // placeholder for user.id referenced in the 2nd param
-    query.where('task.userId = :userId', { userId: user.id });
+    query.where('task.userId = :userId22', { userId: user.id });
 
     if (status) {
       query.andWhere('task.status = :status', {status})
@@ -25,7 +29,8 @@ export class TaskRepository extends Repository<Task> {
       query.andWhere('(task.title LIKE :search OR task.description LIKE :search)', {search: `%${search}%`});
     }
 
-    const tasks = await query.getMany();
+    tasks = await query.getMany();
+    
     return tasks;
   }
 
